@@ -1,0 +1,269 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2017-07-01",
+      "name": "[parameters('workflows_publish_name')]",
+      "location": "westeurope",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/connections', parameters('connections_eventhubs_1_name'))]"
+      ],
+      "properties": {
+        "state": "Disabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "Starte_minütlich": {
+              "recurrence": {
+                "frequency": "Minute",
+                "interval": 1
+              },
+              "type": "Recurrence"
+            }
+          },
+          "actions": {
+            "Anzahl_der_Bestellpositionen_bestimmen": {
+              "runAfter": {},
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "orderline-count",
+                    "type": "Integer",
+                    "value": "@rand(3, 20)"
+                  }
+                ]
+              }
+            },
+            "Array_für_Bestellpositionen_anlegen": {
+              "runAfter": {
+                "Anzahl_der_Bestellpositionen_bestimmen": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "orderlines",
+                    "type": "Array"
+                  }
+                ]
+              }
+            },
+            "Bestellmenge_einer_Bestellposition_merken": {
+              "runAfter": {},
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "orderline-amount",
+                    "type": "Integer",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "Bestellsumme_merken": {
+              "runAfter": {
+                "Array_für_Bestellpositionen_anlegen": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "order-total",
+                    "type": "Float",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "Einzelpreis_einer_Bestellposition_merken": {
+              "runAfter": {
+                "Bestellmenge_einer_Bestellposition_merken": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "orderline-unit-price",
+                    "type": "Float",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            "Order_anlegen": {
+              "runAfter": {
+                "Orderlines_und_Order_erstellen": [
+                  "Succeeded"
+                ]
+              },
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "order",
+                    "type": "Object",
+                    "value": {
+                      "customerid": "@string(guid())",
+                      "orderlines": "@outputs('Bestellpositionen_zusammensetzen')",
+                      "ordertotal": "@variables('order-total')",
+                      "orderuid": "@string(guid())",
+                      "timestamp": "@utcNow()"
+                    }
+                  }
+                ]
+              }
+            },
+            "Orderlines_und_Order_erstellen": {
+              "actions": {
+                "Bestellpositionen_zusammensetzen": {
+                  "runAfter": {
+                    "Orderlines_erstellen": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "Compose",
+                  "inputs": "@variables('orderlines')"
+                },
+                "Orderlines_erstellen": {
+                  "actions": {
+                    "Bestellposition_fertig_machen": {
+                      "runAfter": {
+                        "Bestellposition_in_die_Bestellung_aufnehmen": [
+                          "Succeeded"
+                        ],
+                        "Bestellsumme_anpassen": [
+                          "Succeeded"
+                        ]
+                      },
+                      "type": "DecrementVariable",
+                      "inputs": {
+                        "name": "orderline-count",
+                        "value": 1
+                      }
+                    },
+                    "Bestellposition_in_die_Bestellung_aufnehmen": {
+                      "runAfter": {
+                        "Bestimme_die_Bestellmenge": [
+                          "Succeeded"
+                        ]
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "orderlines",
+                        "value": {
+                          "amount": "@variables('orderline-amount')",
+                          "productid": "@rand(100, 10000)",
+                          "unitprice": "@variables('orderline-unit-price')"
+                        }
+                      }
+                    },
+                    "Bestellsumme_anpassen": {
+                      "runAfter": {
+                        "Bestimme_die_Bestellmenge": [
+                          "Succeeded"
+                        ]
+                      },
+                      "type": "IncrementVariable",
+                      "inputs": {
+                        "name": "order-total",
+                        "value": "@mul(variables('orderline-unit-price'), variables('orderline-amount'))"
+                      }
+                    },
+                    "Bestimme_den_Einzelpreis": {
+                      "runAfter": {},
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "orderline-unit-price",
+                        "value": "@float(concat(string(rand(3, 1000)), '.', string(rand(0, 99))))"
+                      }
+                    },
+                    "Bestimme_die_Bestellmenge": {
+                      "runAfter": {
+                        "Bestimme_den_Einzelpreis": [
+                          "Succeeded"
+                        ]
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "orderline-amount",
+                        "value": "@rand(2, 100)"
+                      }
+                    }
+                  },
+                  "runAfter": {},
+                  "expression": "@equals(variables('orderline-count'), 0)",
+                  "limit": {
+                    "count": 60,
+                    "timeout": "PT1H"
+                  },
+                  "type": "Until"
+                }
+              },
+              "runAfter": {
+                "Bestellsumme_merken": [
+                  "Succeeded"
+                ],
+                "Einzelpreis_einer_Bestellposition_merken": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Scope"
+            },
+            "Send_event": {
+              "runAfter": {
+                "Order_anlegen": [
+                  "Succeeded"
+                ]
+              },
+              "type": "ApiConnection",
+              "inputs": {
+                "body": {
+                  "ContentData": "@{base64(variables('order'))}"
+                },
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['eventhubs']['connectionId']"
+                  }
+                },
+                "method": "post",
+                "path": "/@{encodeURIComponent('ping')}/events"
+              }
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "eventhubs": {
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_eventhubs_1_name'))]",
+                "connectionName": "eventhubs-1",
+                "id": "/subscriptions/c897fb5a-4a76-4b2b-8caf-f0dd481af45f/providers/Microsoft.Web/locations/westeurope/managedApis/eventhubs"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

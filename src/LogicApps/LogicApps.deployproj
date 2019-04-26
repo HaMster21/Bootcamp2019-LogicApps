@@ -29,6 +29,10 @@
       <Visible>False</Visible>
     </None>
     <Content Include="Deploy-AzureResourceGroup.ps1" />
+    <Content Include="nestedtemplates\order-producer.json" />
+    <Content Include="nestedtemplates\order-producer.parameters.json" />
+    <Content Include="nestedtemplates\order-consumer.json" />
+    <Content Include="nestedtemplates\order-consumer.parameters.json" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>
