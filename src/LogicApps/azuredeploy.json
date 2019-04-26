@@ -40,29 +40,19 @@
         "description": "name of the logic app receiving orders"
       }
     },
-    "connections_eventhubs_name": {
-      "defaultValue": "eventhubs",
-      "type": "String"
-    },
-    "connections_eventhubs_1_name": {
-      "defaultValue": "eventhubs-1",
-      "type": "String"
-    },
-    "connections_eventhubs_2_name": {
-      "defaultValue": "eventhubs-2",
-      "type": "String"
-    },
-    "topics_bootcamp_hro_name": {
+    "eventhub_namespace_name": {
+      "type": "String",
       "defaultValue": "bootcamp-hro",
-      "type": "String"
+      "metadata": {
+        "description": "name of the eventhub namespace"
+      }
     },
-    "namespaces_bootcamp_hro_name": {
-      "defaultValue": "bootcamp-hro",
-      "type": "String"
-    },
-    "namespaces_ping_me_name": {
-      "defaultValue": "ping-me",
-      "type": "String"
+    "eventhub_order": {
+      "type": "String",
+      "defaultValue": "orders",
+      "metadata": {
+        "description": "name of the eventhub instance for order events"
+      }
     },
     "_artifactsLocation": {
       "type": "string"
@@ -92,46 +82,48 @@
           "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('eventhub-ordersTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
           "contentVersion": "1.0.0.0"
         },
-        "parametersLink": {
-          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('eventhub-ordersTemplateParametersFileName'), parameters('_artifactsLocationSasToken'))]",
-          "contentVersion": "1.0.0.0"
-        }
-      }
-    },
-    {
-      "name": "order-producer",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2016-09-01",
-      "dependsOn": [],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('order-producerTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
-          "contentVersion": "1.0.0.0"
-        },
         "parameters": {
           "location": { "value": "[parameters('location')]" },
-          "app_name": { "value": "[parameters('order_producer_app_name')]" }
+          "eventhub_namespace_name": { "value": "[parameters('eventhub_namespace_name')]" },
+          "orders_new_topic_name": { "value": "[parameters('eventhub_order')]" }
         }
       }
-    },
-    {
-      "name": "order-consumer",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2016-09-01",
-      "dependsOn": [],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('order-consumerTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "location": { "value": "[parameters('location')]" },
-          "app_name": { "value": "[parameters('order_consumer_app_name')]" }
-        }
-      }
-    },
+    }
+    //},
+    //{
+    //  "name": "order-producer",
+    //  "type": "Microsoft.Resources/deployments",
+    //  "apiVersion": "2016-09-01",
+    //  "dependsOn": [],
+    //  "properties": {
+    //    "mode": "Incremental",
+    //    "templateLink": {
+    //      "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('order-producerTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+    //      "contentVersion": "1.0.0.0"
+    //    },
+    //    "parameters": {
+    //      "location": { "value": "[parameters('location')]" },
+    //      "app_name": { "value": "[parameters('order_producer_app_name')]" }
+    //    }
+    //  }
+    //},
+    //{
+    //  "name": "order-consumer",
+    //  "type": "Microsoft.Resources/deployments",
+    //  "apiVersion": "2016-09-01",
+    //  "dependsOn": [],
+    //  "properties": {
+    //    "mode": "Incremental",
+    //    "templateLink": {
+    //      "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('order-consumerTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+    //      "contentVersion": "1.0.0.0"
+    //    },
+    //    "parameters": {
+    //      "location": { "value": "[parameters('location')]" },
+    //      "app_name": { "value": "[parameters('order_consumer_app_name')]" }
+    //    }
+    //  }
+    //},
 
   ]
 }
