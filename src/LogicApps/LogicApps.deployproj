@@ -33,6 +33,8 @@
     <Content Include="nestedtemplates\order-producer.parameters.json" />
     <Content Include="nestedtemplates\order-consumer.json" />
     <Content Include="nestedtemplates\order-consumer.parameters.json" />
+    <Content Include="nestedtemplates\eventhub-orders.json" />
+    <Content Include="nestedtemplates\eventhub-orders.parameters.json" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>

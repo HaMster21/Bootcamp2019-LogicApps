@@ -2,14 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "workflows_demo_name": {
-      "defaultValue": "demo",
-      "type": "String"
-    },
-    "workflows_publish_name": {
-      "defaultValue": "publish",
-      "type": "String"
-    },
     "connections_eventhubs_name": {
       "defaultValue": "eventhubs",
       "type": "String"
@@ -75,161 +67,14 @@
     }
   },
   "variables": {
-    "order-producerTemplateFolder": "nestedtemplates",
+    "TemplateFolder": "nestedtemplates",
     "order-producerTemplateFileName": "order-producer.json",
     "order-producerTemplateParametersFileName": "order-producer.parameters.json",
-    "order-consumerTemplateFolder": "nestedtemplates",
     "order-consumerTemplateFileName": "order-consumer.json",
-    "order-consumerTemplateParametersFileName": "order-consumer.parameters.json"},
+    "order-consumerTemplateParametersFileName": "order-consumer.parameters.json",
+    "eventhub-ordersTemplateFileName": "eventhub-orders.json",
+    "eventhub-ordersTemplateParametersFileName": "eventhub-orders.parameters.json"},
   "resources": [
-    {
-      "type": "Microsoft.EventGrid/topics",
-      "apiVersion": "2018-01-01",
-      "name": "[parameters('topics_bootcamp_hro_name')]",
-      "location": "westeurope",
-      "properties": {
-        "provisioningState": "Succeeded",
-        "endpoint": "[concat('https://', parameters('topics_bootcamp_hro_name'), '.westeurope-1.eventgrid.azure.net/api/events')]"
-      }
-    },
-    {
-      "type": "Microsoft.EventHub/namespaces",
-      "apiVersion": "2017-04-01",
-      "name": "[parameters('namespaces_bootcamp_hro_name')]",
-      "location": "West Europe",
-      "sku": {
-        "name": "Basic",
-        "tier": "Basic",
-        "capacity": 1
-      },
-      "properties": {
-        "isAutoInflateEnabled": false,
-        "maximumThroughputUnits": 0
-      }
-    },
-    {
-      "type": "Microsoft.NotificationHubs/namespaces",
-      "apiVersion": "2017-04-01",
-      "name": "[parameters('namespaces_ping_me_name')]",
-      "location": "West Europe",
-      "sku": {
-        "name": "Free"
-      },
-      "kind": "NotificationHub",
-      "properties": {
-        "namespaceType": "NotificationHub"
-      }
-    },
-    {
-      "type": "Microsoft.Web/connections",
-      "apiVersion": "2016-06-01",
-      "name": "[parameters('connections_eventhubs_name')]",
-      "location": "westeurope",
-      "properties": {
-        "displayName": "ping-hub",
-        "customParameterValues": {},
-        "api": {
-          "id": "[concat('/subscriptions/c897fb5a-4a76-4b2b-8caf-f0dd481af45f/providers/Microsoft.Web/locations/westeurope/managedApis/', parameters('connections_eventhubs_name'))]"
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Web/connections",
-      "apiVersion": "2016-06-01",
-      "name": "[parameters('connections_eventhubs_1_name')]",
-      "location": "westeurope",
-      "properties": {
-        "displayName": "ping-publish",
-        "customParameterValues": {},
-        "api": {
-          "id": "/subscriptions/c897fb5a-4a76-4b2b-8caf-f0dd481af45f/providers/Microsoft.Web/locations/westeurope/managedApis/eventhubs"
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Web/connections",
-      "apiVersion": "2016-06-01",
-      "name": "[parameters('connections_eventhubs_2_name')]",
-      "location": "westeurope",
-      "properties": {
-        "displayName": "miep",
-        "customParameterValues": {},
-        "api": {
-          "id": "/subscriptions/c897fb5a-4a76-4b2b-8caf-f0dd481af45f/providers/Microsoft.Web/locations/westeurope/managedApis/eventhubs"
-        }
-      }
-    },
-    {
-      "type": "Microsoft.EventHub/namespaces/AuthorizationRules",
-      "apiVersion": "2017-04-01",
-      "name": "[concat(parameters('namespaces_bootcamp_hro_name'), '/RootManageSharedAccessKey')]",
-      "location": "West Europe",
-      "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces', parameters('namespaces_bootcamp_hro_name'))]"
-      ],
-      "properties": {
-        "rights": [
-          "Listen",
-          "Manage",
-          "Send"
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.EventHub/namespaces/eventhubs",
-      "apiVersion": "2017-04-01",
-      "name": "[concat(parameters('namespaces_bootcamp_hro_name'), '/ping')]",
-      "location": "West Europe",
-      "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces', parameters('namespaces_bootcamp_hro_name'))]"
-      ],
-      "properties": {
-        "messageRetentionInDays": 1,
-        "partitionCount": 2,
-        "status": "Active"
-      }
-    },
-    {
-      "type": "Microsoft.NotificationHubs/namespaces/AuthorizationRules",
-      "apiVersion": "2017-04-01",
-      "name": "[concat(parameters('namespaces_ping_me_name'), '/RootManageSharedAccessKey')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.NotificationHubs/namespaces', parameters('namespaces_ping_me_name'))]"
-      ],
-      "properties": {
-        "rights": [
-          "Listen",
-          "Manage",
-          "Send"
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.EventHub/namespaces/eventhubs/authorizationRules",
-      "apiVersion": "2017-04-01",
-      "name": "[concat(parameters('namespaces_bootcamp_hro_name'), '/ping/members')]",
-      "location": "West Europe",
-      "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('namespaces_bootcamp_hro_name'), 'ping')]",
-        "[resourceId('Microsoft.EventHub/namespaces', parameters('namespaces_bootcamp_hro_name'))]"
-      ],
-      "properties": {
-        "rights": [
-          "Listen"
-        ]
-      }
-    },
-    {
-      "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
-      "apiVersion": "2017-04-01",
-      "name": "[concat(parameters('namespaces_bootcamp_hro_name'), '/ping/$Default')]",
-      "location": "West Europe",
-      "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('namespaces_bootcamp_hro_name'), 'ping')]",
-        "[resourceId('Microsoft.EventHub/namespaces', parameters('namespaces_bootcamp_hro_name'))]"
-      ],
-      "properties": {}
-    },
     {
       "name": "order-producer",
       "type": "Microsoft.Resources/deployments",
@@ -238,11 +83,11 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('order-producerTemplateFolder'), '/', variables('order-producerTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('order-producerTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
           "contentVersion": "1.0.0.0"
         },
         "parametersLink": {
-          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('order-producerTemplateFolder'), '/', variables('order-producerTemplateParametersFileName'), parameters('_artifactsLocationSasToken'))]",
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('order-producerTemplateParametersFileName'), parameters('_artifactsLocationSasToken'))]",
           "contentVersion": "1.0.0.0"
         }
       }
@@ -255,11 +100,28 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('order-consumerTemplateFolder'), '/', variables('order-consumerTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('order-consumerTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
           "contentVersion": "1.0.0.0"
         },
         "parametersLink": {
-          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('order-consumerTemplateFolder'), '/', variables('order-consumerTemplateParametersFileName'), parameters('_artifactsLocationSasToken'))]",
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('order-consumerTemplateParametersFileName'), parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        }
+      }
+    },
+    {
+      "name": "eventhub-orders",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "dependsOn": [ ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('eventhub-ordersTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parametersLink": {
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('eventhub-ordersTemplateParametersFileName'), parameters('_artifactsLocationSasToken'))]",
           "contentVersion": "1.0.0.0"
         }
       }

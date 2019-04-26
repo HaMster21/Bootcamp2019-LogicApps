@@ -1,0 +1,118 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.EventGrid/topics",
+      "apiVersion": "2018-01-01",
+      "name": "[parameters('topics_bootcamp_hro_name')]",
+      "location": "westeurope",
+      "properties": {
+        "provisioningState": "Succeeded",
+        "endpoint": "[concat('https://', parameters('topics_bootcamp_hro_name'), '.westeurope-1.eventgrid.azure.net/api/events')]"
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces",
+      "apiVersion": "2017-04-01",
+      "name": "[parameters('namespaces_bootcamp_hro_name')]",
+      "location": "West Europe",
+      "sku": {
+        "name": "Basic",
+        "tier": "Basic",
+        "capacity": 1
+      },
+      "properties": {
+        "isAutoInflateEnabled": false,
+        "maximumThroughputUnits": 0
+      }
+    },
+    {
+      "type": "Microsoft.NotificationHubs/namespaces",
+      "apiVersion": "2017-04-01",
+      "name": "[parameters('namespaces_ping_me_name')]",
+      "location": "West Europe",
+      "sku": {
+        "name": "Free"
+      },
+      "kind": "NotificationHub",
+      "properties": {
+        "namespaceType": "NotificationHub"
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/AuthorizationRules",
+      "apiVersion": "2017-04-01",
+      "name": "[concat(parameters('namespaces_bootcamp_hro_name'), '/RootManageSharedAccessKey')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', parameters('namespaces_bootcamp_hro_name'))]"
+      ],
+      "properties": {
+        "rights": [
+          "Listen",
+          "Manage",
+          "Send"
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/eventhubs",
+      "apiVersion": "2017-04-01",
+      "name": "[concat(parameters('namespaces_bootcamp_hro_name'), '/ping')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', parameters('namespaces_bootcamp_hro_name'))]"
+      ],
+      "properties": {
+        "messageRetentionInDays": 1,
+        "partitionCount": 2,
+        "status": "Active"
+      }
+    },
+    {
+      "type": "Microsoft.NotificationHubs/namespaces/AuthorizationRules",
+      "apiVersion": "2017-04-01",
+      "name": "[concat(parameters('namespaces_ping_me_name'), '/RootManageSharedAccessKey')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.NotificationHubs/namespaces', parameters('namespaces_ping_me_name'))]"
+      ],
+      "properties": {
+        "rights": [
+          "Listen",
+          "Manage",
+          "Send"
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/eventhubs/authorizationRules",
+      "apiVersion": "2017-04-01",
+      "name": "[concat(parameters('namespaces_bootcamp_hro_name'), '/ping/members')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('namespaces_bootcamp_hro_name'), 'ping')]",
+        "[resourceId('Microsoft.EventHub/namespaces', parameters('namespaces_bootcamp_hro_name'))]"
+      ],
+      "properties": {
+        "rights": [
+          "Listen"
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
+      "apiVersion": "2017-04-01",
+      "name": "[concat(parameters('namespaces_bootcamp_hro_name'), '/ping/$Default')]",
+      "location": "West Europe",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('namespaces_bootcamp_hro_name'), 'ping')]",
+        "[resourceId('Microsoft.EventHub/namespaces', parameters('namespaces_bootcamp_hro_name'))]"
+      ],
+      "properties": {}
+    }
+  ],
+  "outputs": {}
+}
