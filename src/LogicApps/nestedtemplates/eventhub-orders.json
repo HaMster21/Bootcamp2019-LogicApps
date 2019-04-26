@@ -24,7 +24,12 @@
       }
     }
   },
-  "variables": {},
+  "variables": {
+    "ListenForOrdersRuleName": "Orders-Read",
+    "SendOrdersRuleName": "Orders-Write",
+    "ReadOrdersResourceId": "[resourceId('Microsoft.EventHub/namespaces/eventhubs/AuthorizationRules', parameters('eventhub_namespace_name'), parameters('orders_new_topic_name'), variables('ListenForOrdersRuleName'))]",
+    "WriteOrdersResourceId": "[resourceId('Microsoft.EventHub/namespaces/eventhubs/AuthorizationRules', parameters('eventhub_namespace_name'), parameters('orders_new_topic_name'), variables('SendOrdersRuleName'))]"
+  },
   "resources": [
     {
       "type": "Microsoft.EventHub/namespaces",
@@ -57,7 +62,7 @@
             {
               "type": "AuthorizationRules",
               "apiVersion": "2017-04-01",
-              "name": "Orders-Read",
+              "name": "[variables('ListenForOrdersRuleName')",
               "dependsOn": [
                 "[concat('Microsoft.EventHub/namespaces/', parameters('eventhub_namespace_name'), '/eventhubs/', parameters('orders_new_topic_name'))]"
               ],
@@ -70,7 +75,7 @@
             {
               "type": "AuthorizationRules",
               "apiVersion": "2017-04-01",
-              "name": "Orders-Write",
+              "name": "[variables('SendOrdersRuleName')",
               "dependsOn": [
                 "[concat('Microsoft.EventHub/namespaces/', parameters('eventhub_namespace_name'), '/eventhubs/', parameters('orders_new_topic_name'))]"
               ],
@@ -86,15 +91,13 @@
     }
   ],
   "outputs": {
-    "NamespaceConnectionString": {
+    "Send-Orders-ConnectionString": {
       "type": "string",
-      //"value": "[listkeys(variables('authRuleResourceId'), '2017-04-01').primaryConnectionString]"
-      "value": "Miep"
+      "value": "[listkeys(variables('WriteOrdersResourceId'), '2017-04-01').secondaryConnectionString]"
     },
-    "SharedAccessPolicyPrimaryKey": {
+    "Listen-For-Orders-ConnectionString": {
       "type": "string",
-      //"value": "[listkeys(variables('authRuleResourceId'), '2017-04-01').primaryKey]"
-      "value": "Miep"
+      "value": "[listkeys(variables('ReadOrdersResourceId'), '2017-04-01').secondaryConnectionString]"
     }
   }
 }
