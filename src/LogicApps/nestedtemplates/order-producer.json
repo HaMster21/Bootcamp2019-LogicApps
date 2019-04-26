@@ -1,17 +1,33 @@
 ﻿{
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "location of all resources in this template"
+      }
+    },
+    "app_name": {
+      "type": "String",
+      "defaultValue": "order-producer",
+      "metadata": {
+        "description": "name of the logic app producing orders"
+      }
+    }
+  },
   "variables": {},
   "resources": [
     {
       "type": "Microsoft.Logic/workflows",
       "apiVersion": "2017-07-01",
-      "name": "[parameters('workflows_publish_name')]",
+      "name": "[parameters('app_name')]",
       "location": "westeurope",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/connections', parameters('connections_eventhubs_1_name'))]"
-      ],
+      "dependsOn": [],
+      "tags": {
+        "displayName": "order producer"
+      },
       "properties": {
         "state": "Disabled",
         "definition": {
