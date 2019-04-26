@@ -55,20 +55,35 @@
           },
           "resources": [
             {
+              "type": "AuthorizationRules",
               "apiVersion": "2017-04-01",
-              "name": "$Default",
-              "type": "consumergroups",
+              "name": "Orders-Read",
               "dependsOn": [
                 "[concat('Microsoft.EventHub/namespaces/', parameters('eventhub_namespace_name'), '/eventhubs/', parameters('orders_new_topic_name'))]"
               ],
               "properties": {
-                "userMetadata": "User Metadata goes here"
+                "rights": [
+                  "Listen"
+                ]
+              }
+            },
+            {
+              "type": "AuthorizationRules",
+              "apiVersion": "2017-04-01",
+              "name": "Orders-Write",
+              "dependsOn": [
+                "[concat('Microsoft.EventHub/namespaces/', parameters('eventhub_namespace_name'), '/eventhubs/', parameters('orders_new_topic_name'))]"
+              ],
+              "properties": {
+                "rights": [
+                  "Send"
+                ]
               }
             }
           ]
         }
       ]
-    },
+    }
   ],
   "outputs": {
     "NamespaceConnectionString": {
@@ -79,7 +94,7 @@
     "SharedAccessPolicyPrimaryKey": {
       "type": "string",
       //"value": "[listkeys(variables('authRuleResourceId'), '2017-04-01').primaryKey]"
-      "value":  "Miep"
+      "value": "Miep"
     }
   }
 }

@@ -49,7 +49,7 @@
     },
     "eventhub_order": {
       "type": "String",
-      "defaultValue": "orders",
+      "defaultValue": "orders-new",
       "metadata": {
         "description": "name of the eventhub instance for order events"
       }
