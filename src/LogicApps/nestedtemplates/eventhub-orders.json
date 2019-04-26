@@ -18,7 +18,7 @@
     },
     "orders_new_topic_name": {
       "type": "String",
-      "defaultValue": "orders-new",
+      "defaultValue": "new",
       "metadata": {
         "description": "name of the topic new orders are made available with"
       }
@@ -62,7 +62,7 @@
             {
               "type": "AuthorizationRules",
               "apiVersion": "2017-04-01",
-              "name": "[variables('ListenForOrdersRuleName')",
+              "name": "[variables('ListenForOrdersRuleName')]",
               "dependsOn": [
                 "[concat('Microsoft.EventHub/namespaces/', parameters('eventhub_namespace_name'), '/eventhubs/', parameters('orders_new_topic_name'))]"
               ],
@@ -75,7 +75,7 @@
             {
               "type": "AuthorizationRules",
               "apiVersion": "2017-04-01",
-              "name": "[variables('SendOrdersRuleName')",
+              "name": "[variables('SendOrdersRuleName')]",
               "dependsOn": [
                 "[concat('Microsoft.EventHub/namespaces/', parameters('eventhub_namespace_name'), '/eventhubs/', parameters('orders_new_topic_name'))]"
               ],
@@ -91,11 +91,11 @@
     }
   ],
   "outputs": {
-    "Send-Orders-ConnectionString": {
+    "Send_Orders_ConnectionString": {
       "type": "string",
       "value": "[listkeys(variables('WriteOrdersResourceId'), '2017-04-01').secondaryConnectionString]"
     },
-    "Listen-For-Orders-ConnectionString": {
+    "Listen_For_Orders_ConnectionString": {
       "type": "string",
       "value": "[listkeys(variables('ReadOrdersResourceId'), '2017-04-01').secondaryConnectionString]"
     }

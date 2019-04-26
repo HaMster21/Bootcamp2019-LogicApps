@@ -15,6 +15,12 @@
       "metadata": {
         "description": "name of the logic app receiving orders"
       }
+    },
+    "receive_eventhub_ConnectionString": {
+      "type": "String",
+      "metadata": {
+        "description": "ConnectionString to an event hub publishing orders"
+      }
     }
   },
   "variables": {},

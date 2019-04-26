@@ -49,7 +49,7 @@
     },
     "eventhub_order": {
       "type": "String",
-      "defaultValue": "orders-new",
+      "defaultValue": "new",
       "metadata": {
         "description": "name of the eventhub instance for order events"
       }
@@ -88,42 +88,46 @@
           "orders_new_topic_name": { "value": "[parameters('eventhub_order')]" }
         }
       }
-    }
-    //},
-    //{
-    //  "name": "order-producer",
-    //  "type": "Microsoft.Resources/deployments",
-    //  "apiVersion": "2016-09-01",
-    //  "dependsOn": [],
-    //  "properties": {
-    //    "mode": "Incremental",
-    //    "templateLink": {
-    //      "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('order-producerTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
-    //      "contentVersion": "1.0.0.0"
-    //    },
-    //    "parameters": {
-    //      "location": { "value": "[parameters('location')]" },
-    //      "app_name": { "value": "[parameters('order_producer_app_name')]" }
-    //    }
-    //  }
-    //},
-    //{
-    //  "name": "order-consumer",
-    //  "type": "Microsoft.Resources/deployments",
-    //  "apiVersion": "2016-09-01",
-    //  "dependsOn": [],
-    //  "properties": {
-    //    "mode": "Incremental",
-    //    "templateLink": {
-    //      "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('order-consumerTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
-    //      "contentVersion": "1.0.0.0"
-    //    },
-    //    "parameters": {
-    //      "location": { "value": "[parameters('location')]" },
-    //      "app_name": { "value": "[parameters('order_consumer_app_name')]" }
-    //    }
-    //  }
-    //},
-
+    },
+    {
+      "name": "order-producer",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "dependsOn": [
+        "eventhub-orders"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('order-producerTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": { "value": "[parameters('location')]" },
+          "app_name": { "value": "[parameters('order_producer_app_name')]" },
+          "publish_eventhub_ConnectionString": { "value": "[reference('eventhub-orders').outputs.Send_Orders_ConnectionString.value]" }
+        }
+      }
+    },
+    {
+      "name": "order-consumer",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "dependsOn": [
+        "eventhub-orders"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('_artifactsLocation'), '/', variables('TemplateFolder'), '/', variables('order-consumerTemplateFileName'), parameters('_artifactsLocationSasToken'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "location": { "value": "[parameters('location')]" },
+          "app_name": { "value": "[parameters('order_consumer_app_name')]" },
+          "receive_eventhub_ConnectionString": { "value": "[reference('eventhub-orders').outputs.Listen_For_Orders_ConnectionString.value]" }
+        }
+      }
+    },
   ]
 }
