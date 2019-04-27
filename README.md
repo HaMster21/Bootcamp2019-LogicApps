@@ -1,4 +1,4 @@
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/) [![Visualize](http://armviz.io/visualizebutton.png)](https://armviz.io)
 
 # Global Azure Bootcamp Rostock, Germany
 
