@@ -1,0 +1,103 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "location of all resources in this template"
+      }
+    },
+    "eventhub_namespace_name": {
+      "type": "String",
+      "defaultValue": "orders",
+      "metadata": {
+        "description": "unique id of the event hub namespace"
+      }
+    },
+    "orders_new_topic_name": {
+      "type": "String",
+      "defaultValue": "new",
+      "metadata": {
+        "description": "name of the topic new orders are made available with"
+      }
+    }
+  },
+  "variables": {
+    "ListenForOrdersRuleName": "Orders-Read",
+    "SendOrdersRuleName": "Orders-Write",
+    "ReadOrdersResourceId": "[resourceId('Microsoft.EventHub/namespaces/eventhubs/AuthorizationRules', parameters('eventhub_namespace_name'), parameters('orders_new_topic_name'), variables('ListenForOrdersRuleName'))]",
+    "WriteOrdersResourceId": "[resourceId('Microsoft.EventHub/namespaces/eventhubs/AuthorizationRules', parameters('eventhub_namespace_name'), parameters('orders_new_topic_name'), variables('SendOrdersRuleName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.EventHub/namespaces",
+      "apiVersion": "2017-04-01",
+      "name": "[parameters('eventhub_namespace_name')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Basic",
+        "tier": "Basic",
+        "capacity": 1
+      },
+      "properties": {
+        "isAutoInflateEnabled": false,
+        "maximumThroughputUnits": 0
+      },
+      "resources": [
+        {
+          "type": "eventhubs",
+          "apiVersion": "2017-04-01",
+          "name": "[parameters('orders_new_topic_name')]",
+          "dependsOn": [
+            "[concat('Microsoft.EventHub/namespaces/', parameters('eventhub_namespace_name'))]"
+          ],
+          "properties": {
+            "messageRetentionInDays": 1,
+            "partitionCount": 2,
+            "status": "Active"
+          },
+          "resources": [
+            {
+              "type": "AuthorizationRules",
+              "apiVersion": "2017-04-01",
+              "name": "[variables('ListenForOrdersRuleName')]",
+              "dependsOn": [
+                "[concat('Microsoft.EventHub/namespaces/', parameters('eventhub_namespace_name'), '/eventhubs/', parameters('orders_new_topic_name'))]"
+              ],
+              "properties": {
+                "rights": [
+                  "Listen"
+                ]
+              }
+            },
+            {
+              "type": "AuthorizationRules",
+              "apiVersion": "2017-04-01",
+              "name": "[variables('SendOrdersRuleName')]",
+              "dependsOn": [
+                "[concat('Microsoft.EventHub/namespaces/', parameters('eventhub_namespace_name'), '/eventhubs/', parameters('orders_new_topic_name'))]"
+              ],
+              "properties": {
+                "rights": [
+                  "Send"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "Send_Orders_ConnectionString": {
+      "type": "string",
+      "value": "[listkeys(variables('WriteOrdersResourceId'), '2017-04-01').secondaryConnectionString]"
+    },
+    "Listen_For_Orders_ConnectionString": {
+      "type": "string",
+      "value": "[listkeys(variables('ReadOrdersResourceId'), '2017-04-01').secondaryConnectionString]"
+    }
+  }
+}
