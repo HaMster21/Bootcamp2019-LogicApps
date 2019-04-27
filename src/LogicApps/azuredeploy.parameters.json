@@ -13,6 +13,9 @@
     },
     "location": {
       "value": "westeurope"
+    },
+    "eventhub_order": {
+      "value": "orders"
     }
   }
 }
