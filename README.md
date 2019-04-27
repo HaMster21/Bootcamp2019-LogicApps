@@ -1,3 +1,5 @@
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
+
 # Global Azure Bootcamp Rostock, Germany
 
 This is the source of the workshop part about Azure Logic Apps.
