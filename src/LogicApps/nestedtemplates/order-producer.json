@@ -250,39 +250,39 @@
               },
               "type": "Scope"
             },
-            "Send_event": {
-              "runAfter": {
-                "Order_anlegen": [
-                  "Succeeded"
-                ]
-              },
-              "type": "ApiConnection",
-              "inputs": {
-                "body": {
-                  "ContentData": "@{base64(variables('order'))}"
-                },
-                "host": {
-                  "connection": {
-                    "name": "@parameters('$connections')['eventhubs']['connectionId']"
-                  }
-                },
-                "method": "post",
-                "path": "/@{encodeURIComponent('ping')}/events"
-              }
-            }
+            //"Send_event": {
+            //  "runAfter": {
+            //    "Order_anlegen": [
+            //      "Succeeded"
+            //    ]
+            //  },
+            //  "type": "ApiConnection",
+            //  "inputs": {
+            //    "body": {
+            //      "ContentData": "@{base64(variables('order'))}"
+            //    },
+            //    "host": {
+            //      "connection": {
+            //        "name": "@parameters('$connections')['eventhubs']['connectionId']"
+            //      }
+            //    },
+            //    "method": "post",
+            //    "path": "/@{encodeURIComponent('ping')}/events"
+            //  }
+            //}
           },
           "outputs": {}
         },
         "parameters": {
-          "$connections": {
-            "value": {
-              "eventhubs": {
-                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_eventhubs_1_name'))]",
-                "connectionName": "eventhubs-1",
-                "id": "/subscriptions/c897fb5a-4a76-4b2b-8caf-f0dd481af45f/providers/Microsoft.Web/locations/westeurope/managedApis/eventhubs"
-              }
-            }
-          }
+          //"$connections": {
+          //  "value": {
+          //    "eventhubs": {
+          //      "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_eventhubs_1_name'))]",
+          //      "connectionName": "eventhubs-1",
+          //      "id": "/subscriptions/c897fb5a-4a76-4b2b-8caf-f0dd481af45f/providers/Microsoft.Web/locations/westeurope/managedApis/eventhubs"
+          //    }
+          //  }
+          //}
         }
       }
     }
