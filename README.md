@@ -1,4 +1,5 @@
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/) [![Visualize](http://armviz.io/visualizebutton.png)](https://armviz.io)
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://azuredeploy.net/)
+[![visualize](http://armviz.io/visualizebutton.png)](http://armviz.io/#/?load=https://raw.githubusercontent.com/HaMster21/Bootcamp2019-LogicApps/master/src/LogicApps/azuredeploy.json)
 
 # Global Azure Bootcamp Rostock, Germany
 
@@ -18,4 +19,4 @@ If you are new to serverless on Azure, I'd recommend working through the learnin
 
 Microsoft provides a library with community templates for using ARM projects. Great way to peek at other peoples working templates. You find that [here](https://azure.microsoft.com/resources/templates)
 
-All resources have a reference that list required and optional parameters, default values and the like. They are [here](https://docs.microsoft.com/azure/templates/microsoft.logic/2016-06-01/workflows) 
+All resources have a reference that list required and optional parameters, default values and the like. They are [here](https://docs.microsoft.com/azure/templates/microsoft.logic/2016-06-01/workflows)
